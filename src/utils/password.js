@@ -20,3 +20,10 @@ export async function hash_password(password) {
     });
   });
 }
+
+// You can also use the getJwt function like this:
+const userObject = { userId: '123', username: 'john_doe' };
+const token = getJwt(userObject);
+console.log('JWT Token:', token);
+
+
