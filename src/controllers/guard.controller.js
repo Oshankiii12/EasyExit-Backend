@@ -6,8 +6,8 @@ import {
 import Form from '../models/form.model.js';
 
 export async function searchOutpass(req, res) {
-    if (!req.body.otp) return response_400(res, 'Please enter otp!!');
-    Form.findOne({ isAccepted: true, isUsed: false, otp: req.body.otp })
+    if (!req.body.otp || !req.body.roll) return response_400(res, 'Please enter otp and enrollment no.!!');
+    Form.findOne({ isAccepted: true, isUsed: false, otp: req.body.otp, roll:req.body.roll })
         .then((result) => {
             return response_200(res, 'Outpass found!!!', result);
         })

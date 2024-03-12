@@ -23,4 +23,5 @@ export async function updatePassword(req, res) {
     req.user.passwordHash = await hash_password(req.body.newPassword);
     await req.user.save();
     return response_200(res, 'Password updated');
+
 }

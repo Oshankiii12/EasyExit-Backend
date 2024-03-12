@@ -6,52 +6,87 @@ import Form from '../models/form.model.js';
 import nodemailer from 'nodemailer';
 import User from '../models/user.model.js';
 
-// Load environment variables
-require('dotenv').config();
-
-// Configure nodemailer using environment variables
 let transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com', // Assuming you are using Gmail as the email service
-    port: 587,
-    secure: false,
+    host: "smtp.gmail.com",
+    post: 587,
+    security: false,
     auth: {
-        user: process.env.EMAIL, // Your email address from environment variable
-        pass: process.env.PASS // Your app password from environment variable
+        user: process.env.EMAIL,
+        pass: process.env.PASS
     }
-});
+})
 
-// Verify transporter configuration
-transporter.verify(function (err, success) {
-    if (err) {
-        console.error('Error verifying email transporter:', err);
-        return;
-    }
-    console.log('Email transporter is ready to send emails');
-});
+
+
 
 export async function pendingPasses(req, res) {
-    try {
-        const pendingForms = await Form.find({ isAccepted: null });
-        return response_200(res, 'Pending outpasses fetched successfully', pendingForms);
-    } catch (error) {
-        return response_500(res, 'Error fetching pending outpasses', error);
-    }
+    Form.find({ isAccepted: null })
+        .then((finalResult) => {
+            return response_200(res, 'Fetched all pending outpasses!!', finalResult);
+        }).catch(error => { return response_500(res, 'Internal server error', error); });
+
+}
+
+export async function outpass(req, res) {
+    const id = req.body.id;
+    const status = req.body.status;
+    const reason = status ? null : req.body.reason;
+    const otp = Math.floor(Math.random() * 900000) + 100000;
+    
+    Form.findByIdAndUpdate(id, { $set: { isAccepted: status, otp: status ? otp : null, rejectReason: status ? null : reason } }, { new: true })
+        .then((result) => {
+            User.findOne({ email: result.roll + "@iiita.ac.in" })
+            .then((finalResult) => {
+                var name = finalResult.name
+                var message = status ? `Dear ${name}, your outpass has been approved! Use ${otp} as your otp to get the hell out of here` : `Oops!! ${name}, your outpass have been declined due to the following reason :- \n ${reason} \n. Please contact your respective caretaker/warden for queries.`
+
+                var senderEmail = 'oshankipriya1@gmail.com'
+
+                var mailOptions = {
+                    from: 'Warden GH',
+                    to: finalResult.email,
+                    subject: status ? "Outpass Approved" : "Outpass Declined",
+                    replyTo: senderEmail,
+                    html: `${message} <br><br> From:${senderEmail}`
+                }
+
+                transporter.sendMail(mailOptions, (err, data) => {
+                    if (err) { return response_500(res, 'Internal server error', err); }
+                    else {
+                        res.json({
+                            status: "success"
+                        })
+                        console.log("email sent " + data.response)
+                    }
+                })
+
+                return response_200(res, status ? 'Outpass Approved! OTP sent!' : 'Outpass declined! mail sent!');
+            })
+        }).catch(error => { return response_500(res, 'Internal server error', error); });
+
 }
 
 export async function acceptedPasses(req, res) {
-    try {
-        const acceptedForms = await Form.find({ isAccepted: true });
-        return response_200(res, 'Accepted outpasses fetched successfully', acceptedForms);
-    } catch (error) {
-        return response_500(res, 'Error fetching accepted outpasses', error);
-    }
+    Form.find({ isAccepted: true })
+        .then((finalResult) => {
+            return response_200(res, 'Fetched all accepted outpasses!!', finalResult);
+        }).catch(error => { return response_500(res, 'Internal server error', error); });
 }
 
 export async function rejectedPasses(req, res) {
-    try {
-        const rejectedForms = await Form.find({ isAccepted: false });
-        return response_200(res, 'Rejected outpasses fetched successfully', rejectedForms);
-    } catch (error) {
-        return response_500(res, 'Error fetching rejected outpasses', error);
-    }
+    Form.find({ isAccepted: false })
+        .then((finalResult) => {
+            console.log(finalResult);
+            return response_200(res, 'Fetched all rejected outpasses!!', finalResult);
+        }).catch(error => { return response_500(res, 'Internal server error', error); });
+
 }
+
+transporter.verify(function (err, success) {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log("Server is ready to send emails")
+    }
+
+});
