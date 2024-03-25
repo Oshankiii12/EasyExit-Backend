@@ -20,7 +20,7 @@ let transporter = nodemailer.createTransport({
 
 
 export async function pendingPasses(req, res) {
-    Form.find({ isAccepted: null })
+    Form.find({ isAccepted : false , rejectReason:null })
         .then((finalResult) => {
             return response_200(res, 'Fetched all pending outpasses!!', finalResult);
         }).catch(error => { return response_500(res, 'Internal server error', error); });
@@ -29,16 +29,20 @@ export async function pendingPasses(req, res) {
 
 export async function outpass(req, res) {
     const id = req.body.id;
+    // console.log(id)
     const status = req.body.status;
+    console.log(status)
     const reason = status ? null : req.body.reason;
     const otp = Math.floor(Math.random() * 900000) + 100000;
     
     Form.findByIdAndUpdate(id, { $set: { isAccepted: status, otp: status ? otp : null, rejectReason: status ? null : reason } }, { new: true })
         .then((result) => {
+            // console.log(result.roll + "@iiita.ac.in");
             User.findOne({ email: result.roll + "@iiita.ac.in" })
             .then((finalResult) => {
+                // console.log(finalResult)
                 var name = finalResult.name
-                var message = status ? `Dear ${name}, your outpass has been approved! Use ${otp} as your otp to get the hell out of here` : `Oops!! ${name}, your outpass have been declined due to the following reason :- \n ${reason} \n. Please contact your respective caretaker/warden for queries.`
+                var message = status ? `Dear ${name}, your outpass has been approved! \n Use ${otp} as your otp to get the hell out of here` : `Oops!! ${name}, your outpass have been declined due to the following reason :- \n ${reason} \n. Please contact your respective caretaker/warden for queries.`
 
                 var senderEmail = 'oshankipriya1@gmail.com'
 

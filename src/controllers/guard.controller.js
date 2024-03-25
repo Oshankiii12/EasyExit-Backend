@@ -14,10 +14,10 @@ export async function searchOutpass(req, res) {
 }
 
 export async function acceptOutpass(req, res) {
-    // console.log(req.query.id)
-    Form.findByIdAndUpdate(req.query.id, { $set: { isUsed: true } }, { new: true })
+    console.log(req.query.id)
+    Form.findByIdAndUpdate(req.body.id, { $set: { isUsed: true } }, { new: true })
         .then((finalResult) => {
-            console.log(finalResult)
+            // console.log(finalResult)
             return response_200(res, 'Outpass Used', finalResult);
         }).catch(error => { return response_500(res, 'Internal server error', error); });
 }

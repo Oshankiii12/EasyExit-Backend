@@ -10,13 +10,9 @@ import User from '../models/user.model.js';
 const studentMiddleware = async (req, res, next) => {
     try {
         const authHeader = req.header('Authorization');
-
         if (!authHeader || !/(Bearer )\w+/.test(authHeader)) {
-            // authorization header is not present or is not of the required format
-            return response_400(res, 'Request is invalid');
+            return response_400(res, 'this Request is invalid');
         }
-
-        // extracting the token and verifying it
         const authToken = authHeader.replace('Bearer ', '');
 
         let userMongoId;
@@ -26,15 +22,10 @@ const studentMiddleware = async (req, res, next) => {
             req.isAuthenticated = true;
             userMongoId = payload.id;
         } catch (err) {
-            // token is invalid or expired
-            return response_401(res, 'Request is unauthorized');
+            return response_401(res, 'Request is very unauthorized');
         }
-
-        // extracting user info from DB
         const user = await User.findById(userMongoId);
-
         if (!user || user.role!="Student") {
-            // user is not present in DB
             return response_401(res, 'Request is unauthorized');
         }
 

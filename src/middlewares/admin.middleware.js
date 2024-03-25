@@ -7,7 +7,7 @@ import {
 } from '../utils/responseCodes.js';
 import User from '../models/user.model.js';
 
-const studentMiddleware = async (req, res, next) => {
+const adminMiddleware = async (req, res, next) => {
     try {
         const authHeader = req.header('Authorization');
 
@@ -45,4 +45,4 @@ const studentMiddleware = async (req, res, next) => {
     }
 };
 
-export default studentMiddleware;
+export default adminMiddleware;

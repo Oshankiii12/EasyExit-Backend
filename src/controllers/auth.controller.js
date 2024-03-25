@@ -16,15 +16,15 @@
       return response_400(res, 'Some parameters are missing!');
     }
       const password = await hash_password(req.body.password);
-    console.log(password);
+    // console.log(password);
   
     try {
       const checkUser = await User.findOne({ email: email, role:role });
-      console.log(checkUser)
+      // console.log(checkUser)
       if (!checkUser) return response_404(res, "User Doesn't exist");
       const checkPassword = password === checkUser.passwordHash;
       if (!checkPassword) return response_400(res, 'Password is incorrect');
-      const jwtToken = getJwt({ id: checkUser._id, email: email, role:role });
+      const jwtToken = getJwt({ id: checkUser._id, name:checkUser.name , email: email, role:role });
       return response_200(res, 'Log In Succesful', {
         name: checkUser.name,
         email: email,
@@ -37,7 +37,7 @@
   }
   export async function signUp(req, res) {
     const { name, email, role } = req.body;
-    console.log(name, email,role);
+    // console.log(name, email,role);
     if (!(name && email && role && req.body.password)){
       return response_400(res, 'Some parameters are missing!');
     }
@@ -48,7 +48,7 @@
 
     const checkUser = await User.findOne({ email: email });
     
-    console.log(checkUser)
+    // console.log(checkUser)
     if (checkUser) return response_400(res, 'Email already in use');
     
     const password = await hash_password(req.body.password);
@@ -60,7 +60,7 @@
     });
     try {
       newUser = await newUser.save();
-      const jwtToken = getJwt({ id: newUser._id, email: newUser.email, role:newUser.role });
+      const jwtToken = getJwt({ id: newUser._id, name:newUser.name, email: newUser.email, role:newUser.role });
       return response_201(res, 'Sign Up Successful', {
         name,
         email,

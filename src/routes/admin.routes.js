@@ -7,7 +7,7 @@ import { Router } from 'express';
 const router = Router();
 
 // All routes configured here
-router.get('/',adminMiddleware, pendingPasses);
+router.get('/', adminMiddleware, pendingPasses);
 router.post('/', adminMiddleware, outpass);
 router.get('/accepted', adminMiddleware, acceptedPasses);
 router.get('/rejected', adminMiddleware, rejectedPasses);

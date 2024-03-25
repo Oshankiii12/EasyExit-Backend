@@ -21,11 +21,9 @@ export async function newPass(req, res) {
     ownResponsibility
   } = req.body;
 
-  console.log("recieved")
   if (!name && !roll && !sem && !where && !purpose && transport && !outtime && !date && !ownResponsibility) {
     return response_400(res, 'Some fields are missing!');
   }
-console.log("all present")
   let newForm = Form({
     name: name,
     roll: roll,
@@ -37,11 +35,8 @@ console.log("all present")
     date: date,
     ownResponsibility: ownResponsibility
   });
-  console.log("newform created")
   try {
-    console.log("saving")
     newForm = await newForm.save();
-    console.log("saved")
     return response_201(res, 'Outpass request sent successfully!!', {
       name: name,
       roll: roll,
@@ -61,10 +56,12 @@ console.log("all present")
 
 
 export async function pastPasses(req, res) {
-  console.log(req.user.roll)
-  Form.find({ roll: req.user.roll, role: "Student" })
+  // console.log(req.user)
+  const email = req.user.email;
+  const roll = email.slice(0,10);
+  Form.find({ roll: roll })
     .then((finalResult) => {
-      console.log(finalResult)
+      // console.log(finalResult)
       return response_200(res, 'Fetched all outpasses of current user!!', finalResult);
     }).catch(error => { return response_500(res, 'Internal server error', error); });
 

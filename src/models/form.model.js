@@ -44,6 +44,7 @@ const formSchema = new Schema(
     },
     isAccepted: {
       type: Boolean,
+      default:false,
     },
     otp: {
       type: String
